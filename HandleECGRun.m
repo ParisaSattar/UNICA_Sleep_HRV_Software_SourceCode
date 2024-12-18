@@ -1,5 +1,5 @@
 function HandleECGRun(phase_segmented_ecg,Phase_Name,phases)
-global fs SubjectName
+global fs SubjectName ECG_Filter
     Segment_Numbers=[];
     ECGr=[];
     if isempty(phase_segmented_ecg)
@@ -14,15 +14,15 @@ global fs SubjectName
             Tol_seg=length(phase_segmented_ecg);
             segNo=i;
             ECGr = phase_segmented_ecg{i,1};
-            % Filtering
-            order = 4;
-            low_cutoff = 0.67;
-            high_cutoff = 100;
-            nyquist = fs / 2;
-            low_cutoff_norm = low_cutoff / nyquist;
-            high_cutoff_norm = high_cutoff / nyquist;
-            [b, a] = butter(order, [low_cutoff_norm, high_cutoff_norm], 'bandpass');
-            ECGr = filtfilt(b, a, ECGr);
+%             % Filtering
+%             order = 4;
+%             low_cutoff = 0.67;
+%             high_cutoff = 100;
+%             nyquist = fs / 2;
+%             low_cutoff_norm = low_cutoff / nyquist;
+%             high_cutoff_norm = high_cutoff / nyquist;
+%             [b, a] = butter(order, [low_cutoff_norm, high_cutoff_norm], 'bandpass');
+%             ECGr = filtfilt(b, a, ECGr);
             ECG_len30=length(ECGr);
             if ECG_len30>30
                 len = length(ECGr);

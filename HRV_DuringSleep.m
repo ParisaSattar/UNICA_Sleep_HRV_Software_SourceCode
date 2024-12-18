@@ -655,6 +655,7 @@ Manual_Correction_button = uicontrol('Parent',Main,'style', 'pushbutton',...
         end
         
         ECG_len30=length(ECGr)/fs;
+        if ~isempty(ECG_Filter)
         if ECG_Filter.Value==1
         order = 4;
         low_cutoff = 0.67;
@@ -664,6 +665,7 @@ Manual_Correction_button = uicontrol('Parent',Main,'style', 'pushbutton',...
         high_cutoff_norm = high_cutoff / nyquist;
         [b, a] = butter(order, [low_cutoff_norm, high_cutoff_norm], 'bandpass');
         ECGr = filtfilt(b, a, ECGr);
+        end
         end
         % Adding mirrored signal before and after signal
         len = length(ECGr);

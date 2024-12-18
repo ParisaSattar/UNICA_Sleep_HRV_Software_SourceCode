@@ -14,9 +14,9 @@ RR_intervals_Interpolated=RR_intervals_Interpolated-mean(RR_intervals_Interpolat
 
 %for pwelch
 %w=length(RR_intervals_Interpolated)/2;
-w=256;
+w=length(RR_intervals_Interpolated)/2;
 %nfft = max(length(RR_intervals_Interpolated),2^nextpow2(length(w)));
-nfft=1024;
+nfft=512;
 noverlap = round(w/2);
 [Pxx, F]=pwelch(RR_intervals_Interpolated,w,noverlap,nfft,Fs_new);
 

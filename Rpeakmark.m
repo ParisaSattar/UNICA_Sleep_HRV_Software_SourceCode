@@ -39,17 +39,23 @@ if numPositives > numNegatives
         new_Rloc(ir,1)=ind(ir,1)-1+R_pos(ir)-win;
         clear ind
     end
-    R_pos=[];
-    R_pos=new_Rloc';
+    %R_pos=[];
+    %R_pos=new_Rloc';
     elseif numNegatives > numPositives
         for ir=1:length(R_pos)
         [~,ind(ir,1)]=min(ECGr((R_pos(ir)-win):R_pos(ir)+win));
         new_Rloc(ir,1)=ind(ir,1)-1+R_pos(ir)-win;
         clear ind
     end
-    R_pos=[];
-    R_pos=new_Rloc';
-if debugging
+    %R_pos=[];
+    %R_pos=new_Rloc';
+end
+R_pos=[];
+R_pos=tachogramCorrection(new_Rloc);
+R_pos=R_pos';    
+    
+    
+    if debugging
     time=(0:length(ECGra)-1)/fs;
     figure
     plot(time,ECGra)
@@ -69,5 +75,5 @@ if debugging
     plot((P_on_pos-1)/fs, ECGra(P_on_pos),'dg')
 
     legend('ECGra','R','Rf','Ri','T','Tf','Ti','P','Pf','Pi')
-end
+
 end

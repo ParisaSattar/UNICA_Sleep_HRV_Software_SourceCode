@@ -124,27 +124,27 @@ Hypno_Columns = figure('Name', 'Select Labels', ...
             'text','string','Select Respective Column', 'FontSize', 13,...
             'Units', 'normalized', ...
             'Position', [0.3, 0.82, 0.4, 0.1]);
-        uicontrol('parent', Hypno_Columns, 'Style', ...
-            'text','string','Start Time', 'FontSize', 10,...
-            'Units', 'normalized', ...
-            'Position', [0.2, 0.7, 0.2, 0.1]);
-        listbox_ST = uicontrol('Style', 'listbox', ...
-            'Units', 'normalized', ...
-            'Position', [0.2, 0.22, 0.22, 0.5], ...
-            'String', hypno_label);
+%         uicontrol('parent', Hypno_Columns, 'Style', ...
+%             'text','string','Start Time', 'FontSize', 10,...
+%             'Units', 'normalized', ...
+%             'Position', [0.2, 0.7, 0.2, 0.1]);
+%         listbox_ST = uicontrol('Style', 'listbox', ...
+%             'Units', 'normalized', ...
+%             'Position', [0.2, 0.22, 0.22, 0.5], ...
+%             'String', hypno_label);
         uicontrol('parent', Hypno_Columns, 'Style', ...
             'text','string','Phase Labels', 'FontSize', 10,...
             'Units', 'normalized', ...
-            'Position', [0.58, 0.7, 0.2, 0.1]);
+            'Position', [0.38, 0.7, 0.2, 0.1]);
         listbox_PL = uicontrol('Style', 'listbox', ...
             'Units', 'normalized', ...
-            'Position', [0.58, 0.22, 0.22, 0.5], ...
+            'Position', [0.38, 0.22, 0.22, 0.5], ...
             'String', hypno_label);
         figdel=3;
         uicontrol('Parent',Hypno_Columns, 'style',...
             'pushbutton','Position', [225 20 150 30], 'String', 'OK','Callback', @selectionMade);
         uiwait(Hypno_Columns);
-        idx_Record_on= listbox_ST.Value;
+%        idx_Record_on= listbox_ST.Value;
         idx_Phase_Label=listbox_PL.Value;
     else
         uicontrol('parent', Hypno_Columns, 'Style', ...
@@ -204,52 +204,52 @@ sleepstage_options=unique(sleepstage_final);
                 idx_bal2=1;
                 condi_str_hyp = false;
                 condi_stop_hyp = false;
-                for i =1: height(time_con1)
-                    if ~condi_str_hyp
-                        record_on_tm(j,1)=seconds(time_con1(i,1));
-                        if time_con1(i+1,1)<time_con1(i,1)
+                j = 1; % Ensure j starts from 1
+                condi_str_hyp = false; % Initialize condition flag
+                idx_bal1 = 1; % Balance index for time_con1
+                idx_bal2 = 1; % Balance index for time_con2
 
-                            condi_str_hyp = true; % Set the flag once the condition is met
-
-                        end
-                    end
-                    if condi_str_hyp
-                        if idx_bal1==1
-                            record_on_tm(j,1)=seconds(time_con1(i,1));
-                            idx_bal1=2;
-                        else
-                            record_on_tm(j,1)=seconds(time_con1(i,1)+hours(24));
-                            if i==height(time_con1)-1
-                                i=height(time_con1);
-                                j=j+1;
-                                record_on_tm(j,1)=seconds(time_con1(i,1)+hours(24));
-                                j=j-1;
-                                i=height(time_con1)-1;
-                            end
-                        end
-                    end
+                for i = 1:height(time_con1) % Include the last time slot
                     if ~condi_str_hyp
-                        record_off_tm(j,1)=seconds(time_con2(i,1));
-                        if time_con2(i+1,1)<time_con2(i,1)
-                            condi_str_hyp = true; % Set the flag once the condition is met
+                        record_on_tm(j, 1) = seconds(time_con1(i, 1));
+                        if i < height(time_con1) && time_con1(i + 1, 1) < time_con1(i, 1)
+                            condi_str_hyp = true; % Condition met, switch to next logic
                         end
                     end
+                
                     if condi_str_hyp
-                        if idx_bal2==1;
-                            record_off_tm(j,1)=seconds(time_con2(i,1));
-                            idx_bal2=2;
+                        if idx_bal1 == 1
+                            record_on_tm(j, 1) = seconds(time_con1(i, 1));
+                            idx_bal1 = 2;
                         else
-                            record_off_tm(j,1)=seconds(time_con2(i,1)+hours(24));
-                            if i==height(time_con2)-1
-                                i=height(time_con2);
-                                j=j+1;
-                                record_off_tm(j,1)=seconds(time_con2(i,1)+hours(24));
-                                j=j-1;
-                                i=height(time_con2)-1;
-                            end
+                            record_on_tm(j, 1) = seconds(time_con1(i, 1) + hours(24));
                         end
                     end
-                    j=j+1;
+                
+                    if ~condi_str_hyp
+                        record_off_tm(j, 1) = seconds(time_con2(i, 1));
+                        if i < height(time_con2) && time_con2(i + 1, 1) < time_con2(i, 1)
+                            condi_str_hyp = true; % Condition met, switch to next logic
+                        end
+                    end
+                
+                    if condi_str_hyp
+                        if idx_bal2 == 1
+                            record_off_tm(j, 1) = seconds(time_con2(i, 1));
+                            idx_bal2 = 2;
+                        else
+                            record_off_tm(j, 1) = seconds(time_con2(i, 1) + hours(24));
+                        end
+                    end
+                
+                    % Move to the next slot
+                    j = j + 1;
+                end
+                
+                % Handle any unprocessed last entry (if necessary)
+                if condi_str_hyp && i == height(time_con1)
+                    record_on_tm(j, 1) = seconds(time_con1(i, 1) + hours(24));
+                    record_off_tm(j, 1) = seconds(time_con2(i, 1) + hours(24));
                 end
                 duration_tm =record_off_tm - record_on_tm;
                 record_on_tm=0;
@@ -372,6 +372,19 @@ sleepstage1=cell2mat(sleepstage1);
     end
 Hypno_data=[];
 Hypno_data=[record_on_tm, duration_tm, sleepstage1];
+Hypno_data(any(isnan(Hypno_data), 2), :) = [];
+if Phasetime_format.Value==3
+        i=length(1: length(Hypno_data));
+        end_value = 30 * (i - 1);
+        % Create the vector starting from 0 and adding 30 to each subsequent element
+        duration_tm=[];
+        record_on_tm=[];
+        duration_tm=ones(i, 1) * 30;
+        record_on_tm=0:30:sum(duration_tm)-30;
+        record_on_tm=record_on_tm'; 
+        Hypno_data(:, 1) = record_on_tm;
+end
+
 Hypno_data=array2table(Hypno_data);
 Hypno_data.Properties.VariableNames = {'RecordingOnset', 'Duration', 'SleepStage'};
 Hypno_data = rmmissing(Hypno_data);
@@ -445,6 +458,8 @@ function setUnitDuration(object, event)
     if Phasetime_format.Value==3 % Check if "30 Sec Epochs" is selected
         set(Unit_Duration, 'Value', 3); % Set to "Second (s)"
         set(Unit_Duration, 'Enable', 'off'); % Lock the dropdown
+        set(Unit_Record_on,'Enable', 'off');
+        set(Unit_Record_on, 'Value', 3);
     else
         set(Unit_Duration, 'Enable', 'on'); % Enable the dropdown
     end

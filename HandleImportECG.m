@@ -74,7 +74,7 @@ ECG_filename= strcat(pathname_ECG,ECG_files);
             Num_Fs= listbox_Fs.Value;
             label_info=list_fields{Num_labels};
             Labels=hdr_ECG.(label_info);
-            igWidth = 600;
+            figWidth = 600;
             figHeight = 300;
             figX = selectedScreen(1) + (selectedScreen(3) - figWidth) / 2;
             figY = selectedScreen(2) + (selectedScreen(4) - figHeight) / 2;
@@ -99,6 +99,57 @@ ECG_filename= strcat(pathname_ECG,ECG_files);
             fs=hdr_ECG.(fs_info);
             ECG=data_ECG(:,selection_Col);
             fs=fs(1,selection_Col);
+
+        ECG_Row_Num_fig = figure('Name', 'ECG Information and Pre-processing', ...
+            'Position', [figX, figY, figWidth, figHeight], ...
+            'MenuBar', 'none','NumberTitle', 'off', ...
+            'ToolBar', 'none');
+         uicontrol('Parent', ECG_Row_Num_fig, 'style', 'text', ...
+            'string', 'Select Type', ...
+            'units', 'normalized', 'FontSize', 11, ...
+            'position', [0.34 0.74 0.25 0.12]);
+        uicontrol('Parent', ECG_Row_Num_fig, 'style', 'text', ...
+            'string', 'Apply Filter', ...
+            'units', 'normalized', 'FontSize', 11, ...
+            'position', [0.04 0.74 0.25 0.12]);
+        ECG_Type =uicontrol('Parent',ECG_Row_Num_fig,'style', 'popupmenu',...
+            'string',{'Single Channel','MultiChannel'} ,...
+            'units', 'normalized','FontSize', 12,...
+            'position', [0.35 0.552 0.25 0.15],'Callback', @ECGtype); 
+        ECG_Filter =uicontrol('Parent',ECG_Row_Num_fig,'style', 'popupmenu',...
+            'string',{'YES','NO'} ,...
+            'units', 'normalized','FontSize', 12,...
+            'position', [0.05 0.552 0.25 0.15]); 
+        figdel=8;%Variable to make condition true on clicking window disapears
+        uicontrol('Parent',ECG_Row_Num_fig, 'style',...
+            'pushbutton','Position', [230 40 150 30], 'String', 'OK','Callback', @selectionMade); 
+        uiwait(ECG_Row_Num_fig)
+        
+        if ECG_Type.Value==2
+        ECG_Row_Num=str2double(ECG_Row_Num.String);
+            if isrow(data_ECG)|| iscolumn(data_ECG)
+                ECG_vect=size(data_ECG);
+                if ECG_vect(1)>ECG_vect(2)
+                    ECG=data_ECG(ECG_Row_Num,:);
+                else
+                    ECG=data_ECG(:,ECG_Row_Num);
+                end
+            else
+                ECG_vect=size(data_ECG);
+                if ECG_vect(1)<ECG_vect(2)
+                    ECG=data_ECG(ECG_Row_Num,:);
+                else
+                    ECG=data_ECG(:,ECG_Row_Num);
+                end
+            end
+
+        else
+            ECG=ECG;
+        end
+   
+
+
+
             
     else
         data_ECG=load(ECG_filename);
@@ -155,6 +206,7 @@ ECG_filename= strcat(pathname_ECG,ECG_files);
             ECG=data_ECG;
         end
     end
+
 
     function ECGtype(object, event)            
         if ECG_Type.Value==2

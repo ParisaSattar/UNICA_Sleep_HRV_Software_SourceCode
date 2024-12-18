@@ -55,9 +55,8 @@ elseif Oneseg_5min.Value==1
         return;
     else
     %Phases_loc=PhasePhases;
-    for i =1:length(Phases_loc)
-        Phases_loc(i,3)=Phases_loc(i,2)-Phases_loc(i,1);
-    end
+    Phases_loc(1,3)=Phases_loc(1,2)-Phases_loc(1,1);
+    
     del_less=Phases_loc(:,3)<300;
     Phases_loc(del_less, :) = [];
     if isempty(Phases_loc)

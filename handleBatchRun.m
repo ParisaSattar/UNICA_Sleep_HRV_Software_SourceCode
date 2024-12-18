@@ -1,7 +1,7 @@
 function handleBatchRun()
 global popupFig hypno_format hypnoProp_fig fig_sleepstage caseName fs
 global wakePhases N1Phases N2Phases N3Phases REMPhases ECG EDF_Info ECG_Type
-global ECG_Info Setting_fig fs_fig Fs_New Main ECG SubjectName ECG_format ECG_Row_Num_fig
+global ECG_Info Setting_fig fs_fig Fs_New Main ECG SubjectName ECG_format ECG_Row_Num_fig ECG_Filter
 %This code ensures that the sub windows open on the same screen
 % Get the position of the figure in pixel coordinates
 figPosition = get(Main, 'Position');
@@ -168,28 +168,29 @@ for Hy=1:length(Hypno_files)
                 'text','string','Select Respective Column', 'FontSize', 13,...
                 'Units', 'normalized', ...
                 'Position', [0.3, 0.82, 0.4, 0.1]);
-            uicontrol('parent', Hypno_Columns, 'Style', ...
-                'text','string','Start Time', 'FontSize', 10,...
-                'Units', 'normalized', ...
-                'Position', [0.2, 0.7, 0.2, 0.1]);
-            listbox_ST = uicontrol('Style', 'listbox', ...
-                'Units', 'normalized', ...
-                'Position', [0.2, 0.22, 0.22, 0.5], ...
-                'String', hypno_label);
+%             uicontrol('parent', Hypno_Columns, 'Style', ...
+%                 'text','string','Start Time', 'FontSize', 10,...
+%                 'Units', 'normalized', ...
+%                 'Position', [0.2, 0.7, 0.2, 0.1]);
+%             listbox_ST = uicontrol('Style', 'listbox', ...
+%                 'Units', 'normalized', ...
+%                 'Position', [0.2, 0.22, 0.22, 0.5], ...
+%                 'String', hypno_label);
             uicontrol('parent', Hypno_Columns, 'Style', ...
                 'text','string','Phase Labels', 'FontSize', 10,...
                 'Units', 'normalized', ...
-                'Position', [0.58, 0.7, 0.2, 0.1]);
+                'Position', [0.38, 0.7, 0.2, 0.1]);
             listbox_PL = uicontrol('Style', 'listbox', ...
                 'Units', 'normalized', ...
-                'Position', [0.58, 0.22, 0.22, 0.5], ...
+                'Position', [0.38, 0.22, 0.22, 0.5], ...
                 'String', hypno_label);
             figdel=3;
             uicontrol('Parent',Hypno_Columns, 'style',...
                 'pushbutton','Position', [225 20 150 30], 'String', 'OK','Callback', @selectionMade);
             uiwait(Hypno_Columns);
-            idx_Record_on= listbox_ST.Value;
+            %idx_Record_on= listbox_ST.Value;
             idx_Phase_Label=listbox_PL.Value;
+
         else
             uicontrol('parent', Hypno_Columns, 'Style', ...
                 'text','string','Select Respective Column', 'FontSize', 13,...
@@ -308,27 +309,27 @@ for Hy=1:length(Hypno_files)
                     'text','string','Select Respective Column', 'FontSize', 13,...
                     'Units', 'normalized', ...
                     'Position', [0.3, 0.82, 0.4, 0.1]);
-                uicontrol('parent', Hypno_Columns, 'Style', ...
-                    'text','string','Start Time', 'FontSize', 10,...
-                    'Units', 'normalized', ...
-                    'Position', [0.2, 0.7, 0.2, 0.1]);
-                listbox_ST = uicontrol('Style', 'listbox', ...
-                    'Units', 'normalized', ...
-                    'Position', [0.2, 0.22, 0.22, 0.5], ...
-                    'String', hypno_label);
+%                 uicontrol('parent', Hypno_Columns, 'Style', ...
+%                     'text','string','Start Time', 'FontSize', 10,...
+%                     'Units', 'normalized', ...
+%                     'Position', [0.2, 0.7, 0.2, 0.1]);
+%                 listbox_ST = uicontrol('Style', 'listbox', ...
+%                     'Units', 'normalized', ...
+%                     'Position', [0.2, 0.22, 0.22, 0.5], ...
+%                     'String', hypno_label);
                 uicontrol('parent', Hypno_Columns, 'Style', ...
                     'text','string','Phase Labels', 'FontSize', 10,...
                     'Units', 'normalized', ...
-                    'Position', [0.58, 0.7, 0.2, 0.1]);
+                    'Position', [0.38, 0.7, 0.2, 0.1]);
                 listbox_PL = uicontrol('Style', 'listbox', ...
                     'Units', 'normalized', ...
-                    'Position', [0.58, 0.22, 0.22, 0.5], ...
+                    'Position', [0.38, 0.22, 0.22, 0.5], ...
                     'String', hypno_label);
                 figdel=3;
                 uicontrol('Parent',Hypno_Columns, 'style',...
                     'pushbutton','Position', [225 20 150 30], 'String', 'OK','Callback', @selectionMade);
                 uiwait(Hypno_Columns);
-                idx_Record_on= listbox_ST.Value;
+                %idx_Record_on= listbox_ST.Value;
                 idx_Phase_Label=listbox_PL.Value;
             else
                 uicontrol('parent', Hypno_Columns, 'Style', ...
@@ -395,52 +396,47 @@ for Hy=1:length(Hypno_files)
                 idx_bal2=1;
                 condi_str_hyp = false;
                 condi_stop_hyp = false;
-                for i =1: height(time_con1)
+                                for i = 1:height(time_con1) % Include the last time slot
                     if ~condi_str_hyp
-                        record_on_tm(j,1)=seconds(time_con1(i,1));
-                        if time_con1(i+1,1)<time_con1(i,1)
-
-                            condi_str_hyp = true; % Set the flag once the condition is met
-
+                        record_on_tm(j, 1) = seconds(time_con1(i, 1));
+                        if i < height(time_con1) && time_con1(i + 1, 1) < time_con1(i, 1)
+                            condi_str_hyp = true; % Condition met, switch to next logic
                         end
                     end
+                
                     if condi_str_hyp
-                        if idx_bal1==1
-                            record_on_tm(j,1)=seconds(time_con1(i,1));
-                            idx_bal1=2;
+                        if idx_bal1 == 1
+                            record_on_tm(j, 1) = seconds(time_con1(i, 1));
+                            idx_bal1 = 2;
                         else
-                            record_on_tm(j,1)=seconds(time_con1(i,1)+hours(24));
-                            if i==height(time_con1)-1
-                                i=height(time_con1);
-                                j=j+1;
-                                record_on_tm(j,1)=seconds(time_con1(i,1)+hours(24));
-                                j=j-1;
-                                i=height(time_con1)-1;
-                            end
+                            record_on_tm(j, 1) = seconds(time_con1(i, 1) + hours(24));
                         end
                     end
+                
                     if ~condi_str_hyp
-                        record_off_tm(j,1)=seconds(time_con2(i,1));
-                        if time_con2(i+1,1)<time_con2(i,1)
-                            condi_str_hyp = true; % Set the flag once the condition is met
+                        record_off_tm(j, 1) = seconds(time_con2(i, 1));
+                        if i < height(time_con2) && time_con2(i + 1, 1) < time_con2(i, 1)
+                            condi_str_hyp = true; % Condition met, switch to next logic
                         end
                     end
+                
                     if condi_str_hyp
-                        if idx_bal2==1;
-                            record_off_tm(j,1)=seconds(time_con2(i,1));
-                            idx_bal2=2;
+                        if idx_bal2 == 1
+                            record_off_tm(j, 1) = seconds(time_con2(i, 1));
+                            idx_bal2 = 2;
                         else
-                            record_off_tm(j,1)=seconds(time_con2(i,1)+hours(24));
-                            if i==height(time_con2)-1
-                                i=height(time_con2);
-                                j=j+1;
-                                record_off_tm(j,1)=seconds(time_con2(i,1)+hours(24));
-                                j=j-1;
-                                i=height(time_con2)-1;
-                            end
+                            record_off_tm(j, 1) = seconds(time_con2(i, 1) + hours(24));
                         end
                     end
-                    j=j+1;
+                
+                    % Move to the next slot
+                    j = j + 1;
+                end
+                
+                % Handle any unprocessed last entry (if necessary)
+                if condi_str_hyp && i == height(time_con1)
+                    record_on_tm(j, 1) = seconds(time_con1(i, 1) + hours(24));
+                    record_off_tm(j, 1) = seconds(time_con2(i, 1) + hours(24));
                 end
                 duration_tm =record_off_tm - record_on_tm;
                 record_on_tm=0;
@@ -460,8 +456,10 @@ for Hy=1:length(Hypno_files)
         i=length(1: height(data_segment));
         end_value = 30 * (i - 1);
         % Create the vector starting from 0 and adding 30 to each subsequent element
-        record_on_tm= table2array(data_segment(:,idx_Record_on));
+        %record_on_tm= table2array(data_segment(:,idx_Record_on));
         duration_tm=ones(i, 1) * 30;
+        record_on_tm=0:30:sum(duration_tm)-30;
+        record_on_tm=record_on_tm';
     end
     if Hypno_Type.Value==1
         figWidth = 650;
@@ -624,9 +622,22 @@ sleepstage1=cell2mat(sleepstage1);
     end
 Hypno_data=[];
 Hypno_data=[record_on_tm, duration_tm, sleepstage1];
+Hypno_data(any(isnan(Hypno_data), 2), :) = [];
+if Phasetime_format.Value==3
+        i=length(1: length(Hypno_data));
+        end_value = 30 * (i - 1);
+        % Create the vector starting from 0 and adding 30 to each subsequent element
+        duration_tm=[];
+        record_on_tm=[];
+        duration_tm=ones(i, 1) * 30;
+        record_on_tm=0:30:sum(duration_tm)-30;
+        record_on_tm=record_on_tm'; 
+        Hypno_data(:, 1) = record_on_tm;
+end
+
 Hypno_data=array2table(Hypno_data);
 Hypno_data.Properties.VariableNames = {'RecordingOnset', 'Duration', 'SleepStage'};
-Hypno_data = rmmissing(Hypno_data);
+%Hypno_data = rmmissing(Hypno_data);
 Conv_Hypno{Hy,1}=Hypno_data;
 currentStart = Hypno_data.RecordingOnset(1);
 currentStage = Hypno_data.SleepStage(1);
@@ -873,7 +884,7 @@ for Batch=1:length(ECG_files)
             Num_Fs= listbox_Fs.Value;
             label_info=list_fields{Num_labels};
             Labels=hdr_ECG.(label_info);
-            igWidth = 600;
+            figWidth = 600;
             figHeight = 300;
             figX = selectedScreen(1) + (selectedScreen(3) - figWidth) / 2;
             figY = selectedScreen(2) + (selectedScreen(4) - figHeight) / 2;
@@ -937,7 +948,7 @@ for Batch=1:length(ECG_files)
             Num_Fs= listbox_Fs.Value;
             label_info=list_fields{Num_labels};
             Labels=hdr_ECG.(label_info);
-            igWidth = 600;
+            figWidth = 600;
             figHeight = 300;
             figX = selectedScreen(1) + (selectedScreen(3) - figWidth) / 2;
             figY = selectedScreen(2) + (selectedScreen(4) - figHeight) / 2;
@@ -963,6 +974,31 @@ for Batch=1:length(ECG_files)
         end         
         ECG=data_ECG(:,selection_Col);
         fs=fs(1,selection_Col);
+             ECG_Row_Num_fig = figure('Name', 'ECG Information and Pre-processing', ...
+            'Position', [figX, figY, figWidth, figHeight], ...
+            'MenuBar', 'none','NumberTitle', 'off', ...
+            'ToolBar', 'none');
+         uicontrol('Parent', ECG_Row_Num_fig, 'style', 'text', ...
+            'string', 'Select Type', ...
+            'units', 'normalized', 'FontSize', 11, ...
+            'position', [0.34 0.74 0.25 0.12]);
+        uicontrol('Parent', ECG_Row_Num_fig, 'style', 'text', ...
+            'string', 'Apply Filter', ...
+            'units', 'normalized', 'FontSize', 11, ...
+            'position', [0.04 0.74 0.25 0.12]);
+        ECG_Type =uicontrol('Parent',ECG_Row_Num_fig,'style', 'popupmenu',...
+            'string',{'Single Channel','MultiChannel'} ,...
+            'units', 'normalized','FontSize', 12,...
+            'position', [0.35 0.552 0.25 0.15],'Callback', @ECGtype); 
+        ECG_Filter =uicontrol('Parent',ECG_Row_Num_fig,'style', 'popupmenu',...
+            'string',{'YES','NO'} ,...
+            'units', 'normalized','FontSize', 12,...
+            'position', [0.05 0.552 0.25 0.15]); 
+        figdel=8;%Variable to make condition true on clicking window disapears
+        uicontrol('Parent',ECG_Row_Num_fig, 'style',...
+            'pushbutton','Position', [230 40 150 30], 'String', 'OK','Callback', @selectionMade); 
+        uiwait(ECG_Row_Num_fig)
+        %May be filter code GUI here
     else
         data_ECG=load(ECG_filename);
         data_ECG=struct2cell(data_ECG);
@@ -973,18 +1009,26 @@ for Batch=1:length(ECG_files)
                 figHeight = 190;
                 figX = selectedScreen(1) + (selectedScreen(3) - figWidth) / 2;
                 figY = selectedScreen(2) + (selectedScreen(4) - figHeight) / 2;
-                ECG_Row_Num_fig = figure('Name', 'ECG Channel Information', ...
+                ECG_Row_Num_fig = figure('Name', 'ECG Information and Pre-processing', ...
                     'Position', [figX, figY, figWidth, figHeight], ...
                     'MenuBar', 'none','NumberTitle', 'off', ...
                     'ToolBar', 'none');
                 uicontrol('Parent', ECG_Row_Num_fig, 'style', 'text', ...
                     'string', 'Select Type', ...
                     'units', 'normalized', 'FontSize', 11, ...
-                    'position', [0.18 0.74 0.25 0.12]);
+                    'position', [0.34 0.74 0.25 0.12]);
+                uicontrol('Parent', ECG_Row_Num_fig, 'style', 'text', ...
+                    'string', 'Apply Filter', ...
+                    'units', 'normalized', 'FontSize', 11, ...
+                    'position', [0.04 0.74 0.25 0.12]);
                 ECG_Type =uicontrol('Parent',ECG_Row_Num_fig,'style', 'popupmenu',...
                     'string',{'Single Channel','MultiChannel'} ,...
                     'units', 'normalized','FontSize', 12,...
-                    'position', [0.2 0.552 0.25 0.15],'Callback', @ECGtype);
+                    'position', [0.35 0.552 0.25 0.15],'Callback', @ECGtype);
+                ECG_Filter =uicontrol('Parent',ECG_Row_Num_fig,'style', 'popupmenu',...
+                    'string',{'YES','NO'} ,...
+                    'units', 'normalized','FontSize', 12,...
+                    'position', [0.05 0.552 0.25 0.15]);
                 figdel=8;%Variable to make condition true on clicking window disapears
                 uicontrol('Parent',ECG_Row_Num_fig, 'style',...
                     'pushbutton','Position', [230 40 150 30], 'String', 'OK','Callback', @selectionMade);
@@ -996,18 +1040,26 @@ for Batch=1:length(ECG_files)
             figHeight = 190;
             figX = selectedScreen(1) + (selectedScreen(3) - figWidth) / 2;
             figY = selectedScreen(2) + (selectedScreen(4) - figHeight) / 2;
-            ECG_Row_Num_fig = figure('Name', 'ECG Channel Information', ...
+            ECG_Row_Num_fig = figure('Name', 'ECG Information and Pre-processing', ...
                 'Position', [figX, figY, figWidth, figHeight], ...
                 'MenuBar', 'none','NumberTitle', 'off', ...
                 'ToolBar', 'none');
             uicontrol('Parent', ECG_Row_Num_fig, 'style', 'text', ...
                 'string', 'Select Type', ...
                 'units', 'normalized', 'FontSize', 11, ...
-                'position', [0.18 0.74 0.25 0.12]);
+                'position', [0.34 0.74 0.25 0.12]);
+            uicontrol('Parent', ECG_Row_Num_fig, 'style', 'text', ...
+                'string', 'Apply Filter', ...
+                'units', 'normalized', 'FontSize', 11, ...
+                'position', [0.04 0.74 0.25 0.12]);
             ECG_Type =uicontrol('Parent',ECG_Row_Num_fig,'style', 'popupmenu',...
                 'string',{'Single Channel','MultiChannel'} ,...
                 'units', 'normalized','FontSize', 12,...
-                'position', [0.2 0.552 0.25 0.15],'Callback', @ECGtype);
+                'position', [0.35 0.552 0.25 0.15],'Callback', @ECGtype);
+            ECG_Filter =uicontrol('Parent',ECG_Row_Num_fig,'style', 'popupmenu',...
+                'string',{'YES','NO'} ,...
+                'units', 'normalized','FontSize', 12,...
+                'position', [0.05 0.552 0.25 0.15]);
             figdel=8;%Variable to make condition true on clicking window disapears
             uicontrol('Parent',ECG_Row_Num_fig, 'style',...
                 'pushbutton','Position', [230 40 150 30], 'String', 'OK','Callback', @selectionMade);
@@ -1097,6 +1149,18 @@ for Batch=1:length(ECG_files)
         'Callback', @selectionMade);
     uiwait(fs_fig)
     end
+    end
+    if ~isempty(ECG_Filter)
+        if ECG_Filter.Value==1
+            order = 4;
+            low_cutoff = 0.67;
+            high_cutoff = 100;
+            nyquist = fs / 2;
+            low_cutoff_norm = low_cutoff / nyquist;
+            high_cutoff_norm = high_cutoff / nyquist;
+            [b, a] = butter(order, [low_cutoff_norm, high_cutoff_norm], 'bandpass');
+            ECG = filtfilt(b, a, ECG);
+        end
     end
     ECG_Names{Batch,1} = SubjectName;
     All_ECGs{Batch,1}=ECG;
@@ -1231,8 +1295,10 @@ msgbox(['Data saved to ' pwd], 'Success');
 
     function setUnitDuration(object, event)
         if Phasetime_format.Value==3 % Check if "30 Sec Epochs" is selected
-            set(Unit_Duration, 'Value', 3); % Set to "Second (s)"
-            set(Unit_Duration, 'Enable', 'off');
+        set(Unit_Duration, 'Value', 3); % Set to "Second (s)"
+        set(Unit_Duration, 'Enable', 'off'); % Lock the dropdown
+        set(Unit_Record_on,'Enable', 'off');
+        set(Unit_Record_on, 'Value', 3);
         else
             set(Unit_Duration, 'Enable', 'on'); % Enable the dropdown
             set(Unit_Record_on, 'Enable', 'on');

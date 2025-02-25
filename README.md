@@ -14,4 +14,4 @@ Hypno_Type1: Each sleep epoch includes a start time and duration for each sleep 
 Hypno_Type2: Each sleep epoch includes a start time and end time for each sleep phase.
 Hypno_Type3: All sleep epochs have a fixed duration of 30 seconds.
 
-If you use these code or part of these code please cite ""
+If you use these code or part of these code please cite "Sattar, P., Baldazzi, G., Puligheddu, M., & Pani, D. (2025). The UNICA sleep HRV analysis tool: an integrated open-source tool for heart rate variability analysis during sleep. Physiological Measurement, 13(1), 015008."
